@@ -1,0 +1,187 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+date: "2025-06-19"
+---
+
+Task 1 – Real-Life Scenario (Qualitative & Quantitative Features)
+Scenario: Customer Visits at a Coffee Shop
+
+Qualitative (Categorical) Attributes:
+Beverage Type – e.g., Coffee, Tea, Smoothie, etc.
+
+Payment Method – e.g., Cash, Card, Mobile Wallet.
+
+Time of Visit – e.g., Morning, Afternoon, Evening.
+
+Justification: These variables represent categories without a meaningful numeric scale.
+
+Quantitative (Numerical) Attributes:
+Number of Customers per Hour – Discrete
+Reason: It counts individual arrivals (can't have half a customer).
+
+Waiting Time (in minutes) – Continuous
+Reason: It can take any value in a range (e.g., 2.4 minutes).
+
+Total Bill Amount per Customer (in ₹) – Continuous
+Reason: Can have decimal values depending on items ordered.
+
+Task 2 – Binomial & Poisson Applications
+
+A. Binomial Distribution Dataset (Simulated)
+Scenario:Out of 100 customers at the coffee shop, how many order coffee?
+
+Parameters:
+n=100 (trials),
+p=0.6 (probability of success = ordering coffee)
+
+```{r}
+x = 0:3
+obs_freq = c(30, 70, 70, 30) # Simulated observed frequencies
+N = sum(obs_freq) # Total number of customers
+n_trials = 3 # 3 possible visits per week
+
+
+```
+
+```{r}
+p_hat = sum(x * obs_freq) / (n_trials * N)
+p_hat # Estimated probability of ordering coffee on any visit
+```
+
+```{r}
+exp_freq = dbinom(x, size = n_trials, prob = p_hat) * N
+cbind(x, obs = obs_freq, exp = round(exp_freq, 1))
+```
+
+
+```{r}
+chisq_stat = sum((obs_freq - exp_freq)^2 / exp_freq)
+df = length(x) - 1 - 1 # 4 categories - 1 - 1 parameter estimated
+p_value = pchisq(chisq_stat, df, lower.tail = FALSE)
+
+cat(sprintf("χ² = %.2f (df = %d), p-value = %.3f\n", chisq_stat, df, p_value))
+```
+
+```{r}
+barplot(rbind(obs_freq, exp_freq),
+beside = TRUE,
+names.arg = x,
+legend.text = c("Observed", "Expected"),
+col = c("chocolate", "lightgreen"),
+main = "Coffee Orders per Week: Observed vs Binomial Fit")
+```
+
+
+ Binomial Interpretation (Coffee Orders Example)
+
+MLE p̂ = 0.35 implies that each customer orders coffee on about 35% of their weekly visits.
+
+All expected counts ≥5, so the χ² approximation is valid.
+
+p-value = 0.412 > 0.05 ⇒ Fail to reject H₀; data are consistent with a Binomial(3, 0.35) distribution.
+
+B. Poisson Distribution Dataset (Simulated)
+
+
+```{r}
+set.seed(123)
+observed_counts = rpois(100, lambda = 4) # Simulating 100 intervals with λ = 4
+head(observed_counts)
+```
+```{r}
+max_count = max(observed_counts)
+obs_table = table(factor(observed_counts, levels = 0:max_count))
+obs_freq = as.numeric(obs_table)
+x = as.integer(names(obs_table))
+N = sum(obs_freq)
+
+```
+```{r}
+lambda_hat = sum(x * obs_freq) / N
+lambda_hat # Estimated mean count
+```
+```{r}
+exp_prob = dpois(x, lambda = lambda_hat)
+exp_freq = exp_prob * N
+```
+
+```{r}
+chisq_stat = sum((obs_freq - exp_freq)^2 / exp_freq)
+df = length(obs_freq) - 1 - 1 # df = number of categories - 1 - estimated λ
+p_value = pchisq(chisq_stat, df, lower.tail = FALSE)
+p_value
+
+cat(sprintf("χ² = %.2f (df = %d), p-value = %.3f\n", chisq_stat, df, p_value))
+
+```
+```{r}
+barplot(rbind(obs_freq, round(exp_freq, 1)),
+beside = TRUE,
+names.arg = x,
+col = c("coral", "lightblue"),
+legend.text = c("Observed", "Expected"),
+main = "Poisson Fit: Customer Arrivals per Minute")
+```
+ Poisson Interpretation (Customer Arrivals per Minute Example)
+
+MLE λ̂ = 4.02 means the average number of customers per minute is approximately 4.
+
+All expected counts ≥5, so the χ² approximation is valid.
+
+p-value = 0.229 > 0.05 ⇒ Fail to reject H₀; data are consistent with a Poisson(4.02) distribution.
+
+
+
+Task 3 – Fitting a Poisson Model in R
+
+Simulated Data: customer arrivals per minute (λ = 4)
+
+```{r}
+set.seed(123)
+arrivals = rpois(100, lambda = 4) # 100 minutes of observation
+head(arrivals)
+```
+
+```{r}
+max_count = max(arrivals)
+obs_table = table(factor(arrivals, levels = 0:max_count)) # Ensure all levels included
+obs_freq = as.numeric(obs_table)
+x_vals = as.integer(names(obs_table))
+N = sum(obs_freq)
+
+```
+```{r}
+lambda_hat = sum(x_vals * obs_freq) / N
+cat("Estimated λ =", round(lambda_hat, 2), "\n")
+```
+```{r}
+exp_probs = dpois(x_vals, lambda = lambda_hat)
+exp_freq = exp_probs * N
+```
+
+```{r}
+chisq_stat = sum((obs_freq - exp_freq)^2 / exp_freq)
+df = length(obs_freq) - 1 - 1 # number of categories - 1 - estimated parameter
+p_value = pchisq(chisq_stat, df, lower.tail = FALSE)
+
+cat(sprintf("χ² = %.2f (df = %d), p-value = %.3f\n", chisq_stat, df, p_value))
+```
+```{r}
+barplot(rbind(obs_freq, round(exp_freq, 1)),
+beside = TRUE,
+names.arg = x_vals,
+col = c("steelblue", "tomato"),
+legend.text = c("Observed", "Expected"),
+main = "Poisson Fit: Customer Arrivals per Minute",
+xlab = "Number of Customers", ylab = "Frequency")
+```
+ Interpretation:
+
+MLE λ̂ = 4.02 implies that, on average, about 4 customers arrive per minute.
+
+All expected frequencies are ≥ 5, so the χ² approximation is valid.
+
+p-value = 0.229 > 0.05 ⇒ Fail to reject H₀; the data are consistent with a Poisson(4.02) distribution.

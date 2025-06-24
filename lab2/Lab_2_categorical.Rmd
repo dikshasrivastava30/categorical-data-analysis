@@ -1,0 +1,150 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+date: "2025-06-20"
+---
+Title
+Task 1: Identification and Comparative Analysis of Probability Distributions for Categorical Data
+Task 2: Simulation Study Demonstrating Consistency of the MLE for Poisson Distribution
+
+
+Objectives
+Task 1
+Identify all probability distributions applicable to categorical data.
+
+Provide detailed descriptions and compare their properties and use cases.
+
+Task 2
+Simulate Poisson data for various sample sizes.
+
+Estimate the Poisson rate parameter𝜆 using Maximum Likelihood Estimation (MLE).
+
+Demonstrate that the estimator is consistent through simulation.
+
+
+ Methodology
+Task 1
+Techniques: Survey of discrete probability distributions used for categorical data
+
+Assumptions: Variables are either nominal or ordinal.
+
+Task 2
+Techniques: Maximum Likelihood Estimation (MLE)
+
+Estimator for Poisson:
+
+𝜆^ MLE = X bar
+
+Assumptions:
+
+Observations are independent
+
+Data follows Poisson distribution
+
+Software: R
+
+
+
+
+Task 1:
+Thoroughly identify every probability distribution applicable to categorical data in statistics,assembling detailed information on each, and provide a comparative analysis of these distributions.
+
+1. Bernoulli Distribution
+
+Definition: Models a single trial with two outcomes (success/failure, yes/no)
+Parameter: p: probability of success 
+Practical Use Cases:
+Medical Testing: A patient either has a disease or doesn’t.
+
+Marketing: Whether a customer clicks on an ad (click = 1, no click = 0)
+
+Quality Control: A product is either defective or not.
+
+
+ 2. Binomial Distribution
+🔹 Definition: Repeated Bernoulli trials — models number of successes in 𝑛 independent binary trials.
+Practical Use Cases:
+Manufacturing: Out of 100 items, how many are defective?
+
+Elections: Out of 1,000 voters, how many support candidate A?
+
+Clinical Trials: Number of patients who respond positively to a drug out of 50.
+
+
+3. Categorical (Multinoulli) Distribution
+🔹 Definition: One trial with more than two possible categories.
+Practical Use Cases:
+Survey: A person selects one favorite cuisine from [Indian, Chinese, Italian, Mexican].
+
+Customer Support: Reason for contacting (Billing, Tech Support, Shipping).
+
+Marketing: Ad campaign click leads to one of several actions (purchase, signup, exit).
+
+
+ 4. Multinomial Distribution
+🔹 Definition: Generalization of binomial where each trial can result in more than two outcomes, over multiple trials.
+
+Practical Use Cases:
+Political Polling: Out of 1,000 respondents, how many support each of 4 parties?
+
+Retail: Count of purchases per product category over a week.
+
+Call Center: Number of calls per issue type over a day.
+
+
+
+
+
+
+
+
+Task 2:
+Simulate Poisson data of increasing sample sizes, estimate λ using its MLE, and show—through a brief simulation study—that this estimator is consistent.
+
+Data Description
+Source: Simulated using rpois() in R
+
+Distribution Used: Poisson with true λ = 4.5
+
+Variable: Count data representing number of events (e.g., customers/hour)
+
+Sample Sizes: 25, 50, 100, 500, 1000, 100000
+
+```{r}
+set.seed(123)
+lambda_true = 4.5
+sample_sizes = c(25, 50, 100, 500, 1000, 100000)
+lambda_mle_values = numeric(length(sample_sizes))
+
+for (i in seq_along(sample_sizes)) {
+  x <- rpois(sample_sizes[i], lambda_true)
+  lambda_mle_values[i] = mean(x)
+}
+
+result = data.frame(Sample_Size = sample_sizes, MLE_Lambda = lambda_mle_values)
+print(result)
+
+plot(sample_sizes, lambda_mle_values, type = "b", col = "blue", pch = 19,
+     xlab = "Sample Size", ylab = "MLE of Lambda",
+     main = "Consistency of MLE for Poisson Distribution")
+abline(h = lambda_true, col = "red", lty = 2)
+
+```
+
+The red dashed line is the true value 𝜆=4.5
+
+The blue dots and line show the estimated λ values.
+
+At small sample sizes, the estimates vary a lot.
+
+As the sample size increases, the estimates stabilize and get closer to 4.5, showing that the MLE is consistent.
+
+
+
+
+
+
+
+
