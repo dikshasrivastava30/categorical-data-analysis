@@ -1,0 +1,90 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+date: "2025-06-27"
+---
+
+1.Explain the three types of Chi-square tests and when to apply Fisher’s Exact Test.
+
+A. Chi-Square Tests:
+There are three main types of Chi-square tests:
+
+1. Chi-Square Test for Goodness-of-Fit
+
+Purpose: Checks if the observed distribution fits an expected distribution.
+
+Used when: You have one categorical variable with multiple levels and want to test how well your observed counts fit expected proportions.
+
+Example: Testing if a die is fair (expected each face to appear 1/6 of the time).
+
+2. Chi-Square Test for Independence
+
+Purpose: Checks if two categorical variables are independent (no association).
+
+Used when: You have data in a contingency table (cross-tabulation).
+
+Example: Checking if gender is independent of disease status (Yes/No).
+
+3. Chi-Square Test for Homogeneity
+
+Purpose: Compares the distribution of a categorical variable across multiple groups.
+
+Used when: You want to compare proportions across different populations.
+
+Example: Testing if different regions have the same distribution of blood types.
+
+Difference between Independence and Homogeneity:
+Both use contingency tables, but:
+
+Independence: Same population, two variables.
+
+Homogeneity: Multiple populations, one variable.
+
+B. Fisher’s Exact Test
+Purpose: Tests for association between two categorical variables in a 2×2 contingency table.
+
+Used when:
+
+Sample size is small (especially when any cell count < 5).
+
+Chi-square test assumptions are violated.
+
+Example: Testing if a new drug has a significant effect vs. placebo in a small clinical trial.
+
+
+
+
+2.Identify a real-world medical situation where McNemar’s test is applicable. Apply the test framework and write the conclusion.
+
+Scenario:
+A hospital tests the effectiveness of a new rapid diagnostic test compared to the standard method on the same patients.
+
+100 patients are tested using both methods (before and after, or method A vs. method B).
+
+Goal: Check if there is a significant change in detection results between the two methods.
+
+```{r}
+# Create a 2x2 contingency table representing the counts of symptom relief outcomes
+data = matrix(c(40, 10, 25, 25), nrow = 2,
+               dimnames = list("Standard Test" = c("Positive", "Negative"),
+                               "New Test" = c("Positive", "Negative")))
+
+# Display the contingency table
+print("Contingency table:")
+print(data)
+
+# Perform McNemar's Test with continuity correction
+result_with_correction = mcnemar.test(data)
+print("McNemar's Test with continuity correction:")
+print(result_with_correction)
+
+# Perform McNemar's Test without continuity correction
+result_without_correction = mcnemar.test(data, correct = FALSE)
+print("McNemar's Test without continuity correction:")
+print(result_without_correction)
+```
+
+
+
