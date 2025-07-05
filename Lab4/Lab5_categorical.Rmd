@@ -1,0 +1,256 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+date: "2025-06-26"
+---
+
+1 A fintech startup launched a mobilepayment application in two Indian cities—CityA and
+CityB—and promoted it for three months with identical budgets. Management now wants to
+know whether the proportion of adult smartphone users who installed the app differs
+between the two markets.
+Each city’s marketing team surveyed a simple random sample of adults who own a smartphone:
+Outcome CityA CityB
+Installed app 257 199
+Did not install 183 221
+Total surveyed 440 420
+
+A. At the 5% significance level, is there evidence that installation rates differ between the
+two cities?
+B. Estimate the risk difference (p1–p2) with a 95% confidence interval.
+C. Interpret the findings in plain business language.
+
+```{r}
+# App installation data
+ct = matrix(c(257, 183,  # City A: installed, not installed
+               199, 221), # City B: installed, not installed
+             nrow = 2, byrow = TRUE,
+             dimnames = list(City = c("A", "B"),
+                             Outcome = c("Installed", "NotInstalled")))
+
+print(ct)
+
+```
+```{r}
+# Two-proportion z-test without Yates' correction
+prop.test(x = c(257, 199),
+          n = c(440, 420),
+          alternative = "two.sided",
+          correct = FALSE)
+
+```
+```{r}
+# Estimate Risk Difference and CI Manually
+
+# Success proportions
+p1 = 257 / 440  # City A
+p2 = 199 / 420  # City B
+
+# Risk difference
+rd = p1 - p2
+
+# Standard error
+se = sqrt((p1 * (1 - p1)) / 440 + (p2 * (1 - p2)) / 420)
+
+# 95% confidence interval
+z = qnorm(0.975)
+ci_lower = rd - z * se
+ci_upper = rd + z * se
+
+cat("Risk difference (p1 - p2):", round(rd, 4), "\n")
+cat("95% CI: (", round(ci_lower, 4), ",", round(ci_upper, 4), ")\n")
+
+```
+
+A. Hypothesis Test
+Null (H₀): Installation rates in City A and City B are the same.
+
+Alternative (H₁): Installation rates differ.
+
+Test used: Two-proportion z-test
+
+Result: p = 0.001199 < 0.05 → Reject H₀
+
+B. Risk Difference
+Estimated difference in installation rates: 11.03%
+
+95% Confidence Interval: ( 0.0439 , 0.1766)
+
+C. Interpretation 
+Based on a survey of adult smartphone users, we found a statistically significant difference in installation rates between City A and City B (p = 0.0012).
+
+The installation rate in City A was approximately 11 percentage points higher than in City B.
+
+The 95% confidence interval for this difference is from 4.4% to 17.7%, meaning we can be 95% confident that City A outperformed City B by at least 4.4 percentage points and up to 17.7 percentage points.
+
+This suggests that the marketing campaign was more effective in City A, or other market conditions in City A were more favorable for adoption. Management may consider investigating what factors contributed to this higher uptake and apply similar strategies in City B or other cities.
+
+
+
+
+
+
+
+
+
+2 Aspirin and Risk of Myocardial Infarction
+The Physicians’ Health Study randomly assigned 22 071 male physicians to take either one
+lowdose aspirin tablet or a placebo on alternate days for about five years. A midstudy analysis
+produced the following 2×2 table:
+Group Suffered MI (“Yes”) No MI (“No”) Total
+Placebo 189 10 845   11 034
+Aspirin 104 10 933   11 037
+A. Calculate the proportion of heartattack cases in each group and the observed difference
+between them. Interpret that difference.
+B. Construct a largesample confidence interval for the true difference in proportions
+(placebo−aspirin). Explain what “95% confidence” means here.
+C. Frame your own hypothesis and do the analysis. State the zstatistic, pvalue, and your
+conclusion about aspirin’s effect
+
+
+```{r}
+# Step A: Proportions and risk difference
+placebo_mi = 189
+aspirin_mi = 104
+placebo_total = 11034
+aspirin_total = 11037
+
+# Proportions
+p_placebo = placebo_mi / placebo_total
+p_aspirin = aspirin_mi / aspirin_total
+risk_diff = p_placebo - p_aspirin
+
+cat("Placebo MI rate:", round(p_placebo, 4), "\n")
+cat("Aspirin MI rate:", round(p_aspirin, 4), "\n")
+cat("Observed risk difference (Placebo - Aspirin):", round(risk_diff, 4), "\n")
+
+```
+A. Descriptive Statistics
+Heart attack rate (Placebo group): 1.71%
+
+Heart attack rate (Aspirin group): 0.94%
+
+Observed difference in rates (Placebo – Aspirin): 0.77 percentage points
+
+
+This shows that participants taking aspirin had a lower risk of myocardial infarction (MI) compared to those taking placebo.
+
+```{r}
+# Step B: 95% Confidence Interval for the difference
+se = sqrt((p_placebo * (1 - p_placebo)) / placebo_total +
+           (p_aspirin * (1 - p_aspirin)) / aspirin_total)
+z = qnorm(0.975)
+ci_lower = risk_diff - z * se
+ci_upper = risk_diff + z * se
+
+cat("95% CI for risk difference:", round(ci_lower, 4), "to", round(ci_upper, 4), "\n")
+
+```
+95% confident that the true difference in heart attack rates between the placebo and aspirin groups lies between the lower and upper bounds of the interval. Since the interval does not include 0, this difference is statistically meaningful.
+
+
+
+Hypotheses:
+H₀: p_placebo = p_aspirin (no difference in MI rates)
+
+H₁: p_placebo ≠ p_aspirin (there is a difference)
+
+```{r}
+# Step C: Two-proportion z-test
+prop.test(x = c(placebo_mi, aspirin_mi),
+          n = c(placebo_total, aspirin_total),
+          alternative = "two.sided",
+          correct = FALSE)
+
+```
+Null Hypothesis (H₀): There is no difference in heart attack rates between the two groups.
+
+Alternative Hypothesis (H₁): There is a difference in heart attack rates.
+
+Test used: Two-proportion z-test (no continuity correction)
+
+Test statistic (χ²): 25.014
+
+p-value: 5.692e-07 (i.e., 0.0000005692)
+
+Since p-value < 0.05, we reject the null hypothesis.
+
+There is strong evidence that aspirin significantly reduces the risk of myocardial infarction compared to placebo.
+
+
+Conclusion:
+The results of this large randomized trial suggest that aspirin use significantly lowers the risk of heart attack in men. The difference is both statistically significant and clinically meaningful, with aspirin reducing the heart attack rate by approximately 0.77 percentage points.
+
+These findings support the potential preventive benefit of low-dose aspirin for cardiovascular health in suitable populations.
+
+
+
+
+
+
+3. A health researcher conducts a casecontrol study to investigate whether exposure to
+secondhand smoke (SHS) at home is associated with childhood asthma.
+
+                    Asthma cases (n=180) Nonasthmatic controls (n=220)
+Exposed to SHS         135                        88
+Not exposed to SHS      45                        132
+A. Create the 2×2 contingency table with the cells labeled a,b,c, and d.
+B. Calculate the odds of asthma among children exposed to SHS and among those not
+exposed.
+C. Compute the odds ratio (OR) comparing asthma odds for SHS‑exposed versus
+unexposed children.
+D. Using the large‑sample (Wald) formula, derive a 95% confidence interval for the OR.
+E. Interpret the OR and its confidence interval in words. What does this tell you about the relationship between second‑hand smoke exposure and childhood asthma?
+
+
+```{r}
+# Step A: 2x2 contingency table
+mat = matrix(c(135, 88, 45, 132),
+              nrow = 2, byrow = TRUE,
+              dimnames = list(SHS = c("Exposed", "Not_Exposed"),
+                              Asthma = c("Yes", "No")))
+print(mat)
+
+```
+```{r}
+# Step B: Manual odds
+odds_exposed = 135 / 88   # Odds for SHS-exposed group
+odds_unexposed = 45 / 132 # Odds for SHS-unexposed group
+
+cat("Odds of asthma (exposed):", round(odds_exposed, 3), "\n")
+cat("Odds of asthma (not exposed):", round(odds_unexposed, 3), "\n")
+
+```
+```{r}
+# Step C: Crude odds ratio
+or_crude = odds_exposed / odds_unexposed
+cat("Crude Odds Ratio:", round(or_crude, 2), "\n")
+
+```
+
+Children exposed to SHS had 4.5 times higher odds of developing asthma compared to those not exposed.
+
+
+```{r}
+# Step D: Use epitools for OR with Wald CI
+
+library(epitools)
+
+or_result = oddsratio(mat, method = "wald")
+print(or_result$measure)
+
+```
+OR = 4.5
+
+95% Confidence Interval: (2.92, 6.93)
+
+Since the entire CI is above 1, this indicates a statistically significant association between SHS exposure and asthma.
+
+Conclusion :
+The study shows a strong and statistically significant association between secondhand smoke exposure and childhood asthma.
+Children who were exposed to SHS at home had 4.5 times the odds of developing asthma compared to unexposed children.
+The 95% confidence interval (2.92 – 6.93) confirms that this effect is not due to chance, and suggests a meaningful public health risk.
+Reducing exposure to SHS may significantly lower asthma risk in children.
+
+
