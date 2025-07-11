@@ -1,0 +1,75 @@
+---
+title: "Lab_05_categorical"
+output:
+  word_document: default
+  html_document: default
+date: "2025-03-17"
+---
+
+
+```{r}
+library(pROC)
+df = read.csv("C:/Users/diksh/Downloads/framingham - framingham.csv")
+head(df)
+df_clean = na.omit(df)  # Remove rows with missing values
+
+```
+```{r}
+cols_to_factor = c("currentSmoker", "BPMeds", "prevalentStroke", 
+                    "prevalentHyp", "diabetes", "TenYearCHD")
+df_clean[cols_to_factor] = lapply(df_clean[cols_to_factor], factor)
+
+```
+
+```{r}
+set.seed(123)
+split = sample(2, nrow(df_clean), replace = TRUE, prob = c(0.7, 0.3))
+train = df_clean[split == 1, ]
+test = df_clean[split == 2, ]
+
+```
+
+```{r}
+model = glm(TenYearCHD ~ ., data = train, family = "binomial")
+summary(model)
+
+```
+```{r}
+predicted_prob = predict(model, newdata = test, type = "response")
+
+```
+
+```{r}
+threshold = 0.5
+predicted_class = ifelse(predicted_prob > threshold, 1, 0)
+actual_class = as.numeric(as.character(test$TenYearCHD))
+
+conf_matrix = table(Predicted = predicted_class, Actual = actual_class)
+print(conf_matrix)
+
+# Extract counts
+TP = conf_matrix["1", "1"]
+TN = conf_matrix["0", "0"]
+FP = conf_matrix["1", "0"]
+FN = conf_matrix["0", "1"]
+
+# Metrics
+sensitivity = TP / (TP + FN)
+specificity = TN / (TN + FP)
+
+cat("Sensitivity:", round(sensitivity, 3), "\n")
+cat("Specificity:", round(specificity, 3), "\n")
+
+```
+```{r}
+roc_obj = roc(actual_class, predicted_prob)
+
+# Plot ROC
+plot(roc_obj, col = "blue", lwd = 2, main = "ROC Curve for Logistic Regression")
+
+# AUC value
+auc_val = auc(roc_obj)
+cat("AUC:", round(auc_val, 3), "\n")
+
+```
+
